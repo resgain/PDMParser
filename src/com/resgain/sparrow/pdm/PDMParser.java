@@ -18,6 +18,7 @@
 package com.resgain.sparrow.pdm;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,29 +43,34 @@ public class PDMParser
     
     /**
      * 解析指定的pdm文件
-     * @param fileName
+     * @param pdmFile
      * @return
      * @throws IOException
      */
-    public static Project parse(String fileName) throws IOException
+    public static Project parse(File pdmFile) throws IOException
     {
-    	return parse(new FileInputStream(fileName));
+    	return parse(new FileInputStream(pdmFile));
+    }
+    
+    public static Project parse(InputStream is) throws IOException
+    {
+    	 String pdmContent = readFile(is, "UTF-8");
+    	 return parse(pdmContent);
     }
 
-    public static Project parse(InputStream is) throws IOException
+    public static Project parse(String pdmContent)
     {
         Project ret = new Project();   
         String BLOCK_REG = "<(c:Tables)>(?s)(.*?)</(\\1)>";
-        String body1 = readFile(is, "UTF-8");
         
-        ret.setAuthor(getString(body1, "<a:Author>(.*?)</a:Author>", 1, null));
-        ret.setVersion(getString(body1, "<a:Version>(.*?)</a:Version>", 1, null));
-        ret.setName(getString(body1, "<a:Name>(.*?)</a:Name>", 1, null));
-        ret.setCode(getString(body1, "<a:Code>(.*?)</a:Code>", 1, null));
+        ret.setAuthor(getString(pdmContent, "<a:Author>(.*?)</a:Author>", 1, null));
+        ret.setVersion(getString(pdmContent, "<a:Version>(.*?)</a:Version>", 1, null));
+        ret.setName(getString(pdmContent, "<a:Name>(.*?)</a:Name>", 1, null));
+        ret.setCode(getString(pdmContent, "<a:Code>(.*?)</a:Code>", 1, null));
         
         StringBuffer body = new StringBuffer(); 
         Pattern lPattern = Pattern.compile(BLOCK_REG, Pattern.CASE_INSENSITIVE);
-        Matcher lMatcher = lPattern.matcher(body1);
+        Matcher lMatcher = lPattern.matcher(pdmContent);
         if (lMatcher.find())
             body = new StringBuffer(lMatcher.group(2));
         lPattern = Pattern.compile("<(o:Table) Id=\"(.*?)\">(?s)(.*?)<(a:Name)>(.*?)</(\\4)>(?s)(.*?)<(a:Code)>(.*?)</(\\8)>(?s)(.*?)<(c:Columns)>(?s)(.*?)</(\\12)>(?s)(.*?)</(\\1)>", Pattern.CASE_INSENSITIVE);
@@ -92,13 +98,13 @@ public class PDMParser
         }         
         lPattern = Pattern.compile("<(o:Reference)(.*?)>(?s)(.*?)<a:Cardinality>[0,1]\\.\\.\\*</a:Cardinality>(?s)(.*?)<o:Table Ref=\"(.*?)\"/>(?s)(.*?)<o:Table Ref=\"(.*?)\"/>(?s)(.*?)<o:Column Ref=\"(.*?)\"/>(?s)(.*?)<o:Column Ref=\"(.*?)\"/>(?s)(.*?)(\\1)", Pattern.CASE_INSENSITIVE);
         lMatcher.reset();
-        lMatcher = lPattern.matcher(body1);
+        lMatcher = lPattern.matcher(pdmContent);
         while(lMatcher.find())
             ret.setFK(lMatcher.group(7), lMatcher.group(5), lMatcher.group(11), lMatcher.group(9));
         
         lPattern = Pattern.compile("<o:PhysicalDomain Id=\\\"([a-zA-Z0-9_]+)\\\">\\s+<a:ObjectID>(.*?)</a:ObjectID>\\s+<a:Name>(.*?)</a:Name>\\s+<a:Code>([a-zA-Z0-9_]+)</a:Code>(?s)(.*?)</o:PhysicalDomain>", Pattern.CASE_INSENSITIVE);
         lMatcher.reset();
-        lMatcher = lPattern.matcher(body1);
+        lMatcher = lPattern.matcher(pdmContent);
         while(lMatcher.find())
         {
         	Domain domain = new Domain(lMatcher.group(1), lMatcher.group(3), lMatcher.group(4));
@@ -109,7 +115,7 @@ public class PDMParser
         
         lPattern = Pattern.compile("<o:PhysicalDiagram Id=\\\"([a-zA-Z0-9_]+)\\\">(?s)(.*?)</o:PhysicalDiagram>", Pattern.CASE_INSENSITIVE);
         lMatcher.reset();
-        lMatcher = lPattern.matcher(body1);
+        lMatcher = lPattern.matcher(pdmContent);
         while(lMatcher.find())
         {
         	String name = getString(lMatcher.group(2), "<a:Name>(.*?)</a:Name>", 1, null);
