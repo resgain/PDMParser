@@ -61,20 +61,25 @@ public class PDMParser
     public static Project parse(String pdmContent)
     {
         Project ret = new Project();   
-        String BLOCK_REG = "<(c:Tables)>(?s)(.*?)</(\\1)>";
         
         ret.setAuthor(getString(pdmContent, "<a:Author>(.*?)</a:Author>", 1, null));
         ret.setVersion(getString(pdmContent, "<a:Version>(.*?)</a:Version>", 1, null));
         ret.setName(getString(pdmContent, "<a:Name>(.*?)</a:Name>", 1, null));
         ret.setCode(getString(pdmContent, "<a:Code>(.*?)</a:Code>", 1, null));
         
-        StringBuffer body = new StringBuffer(); 
-        Pattern lPattern = Pattern.compile(BLOCK_REG, Pattern.CASE_INSENSITIVE);
+        Pattern lPattern = Pattern.compile("<o:PhysicalDomain Id=\\\"([a-zA-Z0-9_]+)\\\">\\s+<a:ObjectID>(.*?)</a:ObjectID>\\s+<a:Name>(.*?)</a:Name>\\s+<a:Code>([a-zA-Z0-9_]+)</a:Code>(?s)(.*?)</o:PhysicalDomain>", Pattern.CASE_INSENSITIVE);
         Matcher lMatcher = lPattern.matcher(pdmContent);
-        if (lMatcher.find())
-            body = new StringBuffer(lMatcher.group(2));
+        while(lMatcher.find())
+        {
+        	Domain domain = new Domain(lMatcher.group(1), lMatcher.group(3), lMatcher.group(4));
+        	domain.setType(getString(lMatcher.group(5), "<a:DataType>(.*?)</a:DataType>", 1, null));
+        	domain.setComment(getString(lMatcher.group(5), "<a:Comment>(?s)(.*?)</a:Comment>", 1, null));
+        	ret.getDomains().put(domain.getId(), domain);
+        }        
+        
         lPattern = Pattern.compile("<(o:Table) Id=\"(.*?)\">(?s)(.*?)<(a:Name)>(.*?)</(\\4)>(?s)(.*?)<(a:Code)>(.*?)</(\\8)>(?s)(.*?)<(c:Columns)>(?s)(.*?)</(\\12)>(?s)(.*?)</(\\1)>", Pattern.CASE_INSENSITIVE);
-        lMatcher = lPattern.matcher(body);
+        lMatcher.reset();
+        lMatcher = lPattern.matcher(getString(pdmContent, "<(c:Tables)>(?s)(.*?)</(\\1)>", 2, ""));
         while (lMatcher.find()) {
             Table table = new Table(ret.getCode(), lMatcher.group(2), lMatcher.group(9), lMatcher.group(5));
             Pattern pattern = Pattern.compile("<(o:Column) Id=\"(.*?)\">(?s)(.*?)<(a:Name)>(.*?)</(\\4)>(?s)(.*?)<(a:Code)>(.*?)</(\\8)>(?s)(.*?)<(a:DataType)>(.*?)</(\\12)>(?s)(.*?)</(\\1)>", Pattern.CASE_INSENSITIVE);
@@ -101,17 +106,6 @@ public class PDMParser
         lMatcher = lPattern.matcher(pdmContent);
         while(lMatcher.find())
             ret.setFK(lMatcher.group(7), lMatcher.group(5), lMatcher.group(11), lMatcher.group(9));
-        
-        lPattern = Pattern.compile("<o:PhysicalDomain Id=\\\"([a-zA-Z0-9_]+)\\\">\\s+<a:ObjectID>(.*?)</a:ObjectID>\\s+<a:Name>(.*?)</a:Name>\\s+<a:Code>([a-zA-Z0-9_]+)</a:Code>(?s)(.*?)</o:PhysicalDomain>", Pattern.CASE_INSENSITIVE);
-        lMatcher.reset();
-        lMatcher = lPattern.matcher(pdmContent);
-        while(lMatcher.find())
-        {
-        	Domain domain = new Domain(lMatcher.group(1), lMatcher.group(3), lMatcher.group(4));
-        	domain.setType(getString(lMatcher.group(5), "<a:DataType>(.*?)</a:DataType>", 1, null));
-        	domain.setComment(getString(lMatcher.group(5), "<a:Comment>(?s)(.*?)</a:Comment>", 1, null));
-        	ret.getDomains().put(domain.getId(), domain);
-        }
         
         lPattern = Pattern.compile("<o:PhysicalDiagram Id=\\\"([a-zA-Z0-9_]+)\\\">(?s)(.*?)</o:PhysicalDiagram>", Pattern.CASE_INSENSITIVE);
         lMatcher.reset();
