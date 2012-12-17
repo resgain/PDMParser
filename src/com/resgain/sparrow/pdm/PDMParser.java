@@ -91,6 +91,9 @@ public class PDMParser
         			column.setNullFlag(true);
             	column.setDomainId(getString(matcher.group(15), "<(c:Domain)>\\s*<o:PhysicalDomain[ ]+Ref=\\\"([a-zA-Z0-9_]+)\\\"/>\\s*</(\\1)>", 2, null));
             	column.setComment(getString(matcher.group(11), "<a:Comment>(?s)(.*?)</a:Comment>", 1, null));
+            	if(column.getDomainId()!=null)
+            		column.setDomain(ret.getDomains().get(column.getDomainId()));
+            	
         		table.getColumns().add(column);
             }
             

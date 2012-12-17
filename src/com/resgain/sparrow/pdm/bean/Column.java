@@ -35,6 +35,8 @@ public class Column
     private String refId; //关联表字段ID
     private String comment; //注释
     
+    private Domain domain;
+    
     public Column() { }
     
 	public Column(String id, String code, String name, String type) 
@@ -60,6 +62,8 @@ public class Column
 		if(ref!=null){
 			sb.append("\t-->").append(ref.getId()).append("(").append(ref.getCode()).append(").").append(refId).append("(").append(ref.getColumnInfo(refId).getCode()).append(")");
 		}
+		if(domain!=null)
+			sb.append("\tdomainId:").append(domainId);
 		if(comment!=null)
 			sb.append("\t//").append(comment);
 		return sb.append("\r\n").toString();
@@ -162,5 +166,14 @@ public class Column
 	public void setComment(String comment)
 	{
 		this.comment = comment;
+	}
+
+	public Domain getDomain()
+	{
+		return domain;
+	}
+	public void setDomain(Domain domain)
+	{
+		this.domain = domain;
 	}
 }
