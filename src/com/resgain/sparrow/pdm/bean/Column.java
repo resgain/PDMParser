@@ -47,6 +47,8 @@ public class Column
 		this.code = code;
 		this.name = name;
 		this.type = type;
+		this.length = length;
+		this.precision = precision;
 	}
 	
 	@Override
