@@ -92,7 +92,7 @@ public class Project
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer(name);
+		StringBuffer sb = new StringBuffer().append(name);
 		sb.append("(").append(code).append(")\tAuthor:").append(author);
 		sb.append(" Version:").append(version);
 		sb.append(" Create time:").append(cdate);

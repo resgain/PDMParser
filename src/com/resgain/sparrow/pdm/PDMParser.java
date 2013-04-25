@@ -81,11 +81,14 @@ public class PDMParser
         lMatcher.reset();
         lMatcher = lPattern.matcher(getString(pdmContent, "<(c:Tables)>(?s)(.*?)</(\\1)>", 2, ""));
         while (lMatcher.find()) {
+        	System.out.println( lMatcher.group(9)+"\t"+lMatcher.group(5));
             Table table = new Table(ret.getCode(), lMatcher.group(2), lMatcher.group(9), lMatcher.group(5));
             Pattern pattern = Pattern.compile("<(o:Column) Id=\"(.*?)\">(?s)(.*?)<(a:Name)>(.*?)</(\\4)>(?s)(.*?)<(a:Code)>(.*?)</(\\8)>(?s)(.*?)<(a:DataType)>(.*?)</(\\12)>(?s)(.*?)</(\\1)>", Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(lMatcher.group(13));
             while (matcher.find()){
-            	Column column = new Column(matcher.group(2), matcher.group(9), matcher.group(5), matcher.group(13));
+            	int length = Integer.valueOf(getString(matcher.group(15), "<a:Length>([\\d]+)</a:Length>", 1, "0"));
+            	int precision = Integer.valueOf(getString(matcher.group(15), "<a:Precision>([\\d]+)</a:Precision>", 1, "0"));
+            	Column column = new Column(matcher.group(2), matcher.group(9), matcher.group(5), matcher.group(13), length, precision);
             	String nul = getString(matcher.group(15), "<(a:Mandatory)>(.*?)</(\\1)>(.*?)", 2, "0");
         		if(nul!=null && (nul.equalsIgnoreCase("1") || nul.trim().equalsIgnoreCase("yes")) )
         			column.setNullFlag(true);

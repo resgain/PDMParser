@@ -39,7 +39,7 @@ public class Domain
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer(id);
+		StringBuffer sb = new StringBuffer().append(id);
 		sb.append("\t").append(name).append("(").append(code).append(")");
 		sb.append("\t").append(type);
 		if(comment!=null)

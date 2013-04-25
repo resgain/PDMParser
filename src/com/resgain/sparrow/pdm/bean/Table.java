@@ -74,7 +74,7 @@ public class Table
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer(id);
+		StringBuffer sb = new StringBuffer().append(id);
 		sb.append("\t").append(name).append("(").append(code).append(")\r\n");
 		
 		if(columns.size()>0)

@@ -27,6 +27,8 @@ public class Column
 	private String code; //字段代码
     private String name; //字段含义
     private String type; //原始类型及长度
+    private int length;
+    private int precision;
     private String domainId; //定义的数据域ID
     private boolean pkFlag; //是否为主键
     private boolean nullFlag; //是否可以为空
@@ -39,7 +41,7 @@ public class Column
     
     public Column() { }
     
-	public Column(String id, String code, String name, String type) 
+	public Column(String id, String code, String name, String type, int length, int precision) 
 	{
 		this.id = id;
 		this.code = code;
@@ -50,7 +52,7 @@ public class Column
 	@Override
 	public String toString()
 	{
-		StringBuffer sb = new StringBuffer(id);
+		StringBuffer sb = new StringBuffer().append(id);
 		sb.append("\t").append(name).append("(").append(code).append(")");
 		sb.append("\t").append(type);
 		if(nullFlag)
@@ -175,5 +177,23 @@ public class Column
 	public void setDomain(Domain domain)
 	{
 		this.domain = domain;
+	}
+
+	public int getLength()
+	{
+		return length;
+	}
+	public void setLength(int length)
+	{
+		this.length = length;
+	}
+
+	public int getPrecision()
+	{
+		return precision;
+	}
+	public void setPrecision(int precision)
+	{
+		this.precision = precision;
 	}
 }
