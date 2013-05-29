@@ -30,6 +30,7 @@ public class Table
 	private String prjId; //项目ID
     private String code;  //表代码
     private String name;  //表含义
+    private String scode; //简化后的表代码， 主要是去调前缀,比如BASE_USER-->USER
 
     private List<Column> columns = new ArrayList<Column>(); //列信息
     
@@ -75,7 +76,7 @@ public class Table
 	public String toString()
 	{
 		StringBuffer sb = new StringBuffer().append(id);
-		sb.append("\t").append(name).append("(").append(code).append(")\r\n");
+		sb.append("\t").append(name).append("(").append(code).append("--").append(scode).append(")\r\n");
 		
 		if(columns.size()>0)
 		{
@@ -129,5 +130,14 @@ public class Table
 	public void setColumns(List<Column> columns)
 	{
 		this.columns = columns;
+	}
+
+	public String getScode()
+	{
+		return scode;
+	}
+	public void setScode(String scode)
+	{
+		this.scode = scode;
 	}
 }

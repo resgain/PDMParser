@@ -25,6 +25,7 @@ public class Column
 {
 	private String id;
 	private String code; //字段代码
+	private String scode; //简化后的表代码， 主要是去调前缀,比如BASE_USER-->USER
     private String name; //字段含义
     private String type; //原始类型及长度
     private int length;
@@ -55,7 +56,7 @@ public class Column
 	public String toString()
 	{
 		StringBuffer sb = new StringBuffer().append(id);
-		sb.append("\t").append(name).append("(").append(code).append(")");
+		sb.append("\t").append(name).append("(").append(code).append("--").append(scode).append(")");
 		sb.append("\t").append(type);
 		if(nullFlag)
 			sb.append("\tNot Null");		
@@ -197,5 +198,15 @@ public class Column
 	public void setPrecision(int precision)
 	{
 		this.precision = precision;
+	}
+
+	public String getScode()
+	{
+		return scode;
+	}
+
+	public void setScode(String scode)
+	{
+		this.scode = scode;
 	}
 }

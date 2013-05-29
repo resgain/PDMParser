@@ -31,6 +31,7 @@ import com.resgain.sparrow.pdm.bean.Column;
 import com.resgain.sparrow.pdm.bean.Domain;
 import com.resgain.sparrow.pdm.bean.Project;
 import com.resgain.sparrow.pdm.bean.Table;
+import com.resgain.sparrow.pdm.util.MostPrefix;
 
 
 /**
@@ -81,7 +82,6 @@ public class PDMParser
         lMatcher.reset();
         lMatcher = lPattern.matcher(getString(pdmContent, "<(c:Tables)>(?s)(.*?)</(\\1)>", 2, ""));
         while (lMatcher.find()) {
-        	System.out.println( lMatcher.group(9)+"\t"+lMatcher.group(5));
             Table table = new Table(ret.getCode(), lMatcher.group(2), lMatcher.group(9), lMatcher.group(5));
             Pattern pattern = Pattern.compile("<(o:Column) Id=\"(.*?)\">(?s)(.*?)<(a:Name)>(.*?)</(\\4)>(?s)(.*?)<(a:Code)>(.*?)</(\\8)>(?s)(.*?)<(a:DataType)>(.*?)</(\\12)>(?s)(.*?)</(\\1)>", Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(lMatcher.group(13));
@@ -131,7 +131,34 @@ public class PDMParser
         	}
         	ret.getCategoryList().add(category);
         }
+        scode(ret);
         return ret;
+    }
+    
+    private static void scode(Project proj) {
+    	for (Category cate : proj.getCategoryList()) {
+    		String prefix =  (cate.getCode().indexOf('_')>0?cate.getCode().substring(0, cate.getCode().indexOf('_')):cate.getCode()).toUpperCase();
+			for (Table table : cate.getTableList()) {
+				if(table==null)
+					continue;
+				if(table.getCode().startsWith(prefix))
+					table.setScode(table.getCode().substring(prefix.length()+1));
+				else
+					table.setScode(table.getCode());
+				MostPrefix mp = MostPrefix.getInstance();
+				for (Column col : table.getColumns()) {
+					if(col.getCode().indexOf('_')>0)
+						mp.addPrefix(col.getCode().substring(0, col.getCode().indexOf('_')));
+				}
+				String prefix1 = mp.getMostPrefix();
+				for (Column col : table.getColumns()) {
+					if(col.getCode().startsWith(prefix1))
+						col.setScode(col.getCode().substring(prefix1.length()+1));
+					else
+						col.setScode(col.getCode());
+				}
+			}
+		}
     }
     
 	private static String getString(String str, String reg, int group, String def)
